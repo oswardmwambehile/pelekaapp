@@ -1,0 +1,18 @@
+:root {
+  --body-bg: #fefefe;
+  --body-fg: #000000;
+  --header-bg: #0d47a1;
+  --accent: #ff6f00;
+  --font-family-primary: 'Segoe UI', sans-serif;
+}
+
+.login h1 {
+  font-size: 28px;
+  color: #0d47a1;
+  font-weight: bold;
+}
+
+input {
+  border: 2px solid #0d47a1;
+  border-radius: 6px;
+}
