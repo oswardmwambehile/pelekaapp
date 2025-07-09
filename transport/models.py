@@ -1,5 +1,6 @@
 from django.db import models
 from account.models import CustomUser
+from location.models import Route
 
 class TransportCompany(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
@@ -22,5 +23,7 @@ class Vehicle(models.Model):
     capacity = models.FloatField()
     is_active = models.BooleanField(default=True)
 
+    routes = models.ManyToManyField(Route, related_name='vehicles', blank=True)
+
     def __str__(self):
-        return self.company.company_name  
+        return f"{self.number_plate} - {self.company.company_name}"

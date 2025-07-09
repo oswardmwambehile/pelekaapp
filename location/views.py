@@ -117,3 +117,24 @@ class RouteDeleteView(generics.DestroyAPIView):
 
     def get_queryset(self):
         return Route.objects.filter(user=self.request.user)
+
+
+
+# views.py
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .models import Route
+from .serializers import RouteSearchSerializer
+
+@api_view(['GET'])
+def search_routes(request):
+    origin_id = request.GET.get('origin')
+    destination_id = request.GET.get('destination')
+
+    if not origin_id or not destination_id:
+        return Response({'error': 'Both origin and destination are required.'}, status=400)
+
+    routes = Route.objects.filter(origin_id=origin_id, destination_id=destination_id).prefetch_related('vehicles__company')
+
+    serializer = RouteSearchSerializer(routes, many=True)
+    return Response(serializer.data)

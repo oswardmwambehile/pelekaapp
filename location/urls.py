@@ -8,8 +8,9 @@ from .views import (
     RouteUpdateView,
     RouteDeleteView,
 )
-
+from .views import search_routes
 urlpatterns = [
+   
     # Region URLs
     path('regions/', RegionListView.as_view(), name='region-list'),
     path('regions/create/', RegionCreateView.as_view(), name='region-create'),
@@ -30,5 +31,6 @@ urlpatterns = [
     path('routes/<int:pk>/', RouteDetailView.as_view(), name='route-detail'),
     path('routes/<int:pk>/update/', RouteUpdateView.as_view(), name='route-update'),
     path('routes/<int:pk>/delete/', RouteDeleteView.as_view(), name='route-delete'),
+    path('routes/search/', search_routes, name='route-search'),
 ]
 

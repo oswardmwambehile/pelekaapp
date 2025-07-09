@@ -29,15 +29,28 @@ from django.conf import settings
 
 
 class Route(models.Model):
-    origin = models.CharField(max_length=100)
-    destination = models.CharField(max_length=100)
+    origin = models.ForeignKey(
+        'District',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='route_origins'
+    )
+    destination = models.ForeignKey(
+        'District',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='route_destinations'
+    )
     distance = models.FloatField()
     expected_time = models.DurationField()
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True,blank=True, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
 
     def __str__(self):
-        return f"{self.origin} → {self.destination}"
-
+        origin_name = self.origin.name if self.origin else "Unknown"
+        destination_name = self.destination.name if self.destination else "Unknown"
+        return f"{origin_name} → {destination_name}"

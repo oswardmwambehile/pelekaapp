@@ -54,3 +54,28 @@ class RouteSerializer(serializers.ModelSerializer):
         validated_data.pop('user', None)
         return super().update(instance, validated_data)
 
+
+
+# Nested search serializer
+from transport.models import  Vehicle, TransportCompany
+
+class TransportCompanySearchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TransportCompany
+        fields = ['id', 'company_name', 'description', 'verified']
+
+class VehicleSearchSerializer(serializers.ModelSerializer):
+    company = TransportCompanySearchSerializer(read_only=True)
+
+    class Meta:
+        model = Vehicle
+        fields = ['id', 'number_plate', 'vehicle_type', 'capacity', 'is_active', 'company']
+
+class RouteSearchSerializer(serializers.ModelSerializer):
+    origin = serializers.StringRelatedField()
+    destination = serializers.StringRelatedField()
+    vehicles = VehicleSearchSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Route
+        fields = ['id', 'origin', 'destination', 'distance', 'expected_time', 'vehicles']
