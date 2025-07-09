@@ -1,3 +1,5 @@
+# parcel/views.py
+
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -10,7 +12,7 @@ from .serializers import ParcelSerializer, ParcelCreateSerializer
 @permission_classes([IsAuthenticated])
 def list_parcels(request):
     parcels = Parcel.objects.filter(sender=request.user)
-    serializer = ParcelSerializer(parcels, many=True)
+    serializer = ParcelSerializer(parcels, many=True, context={'request': request})
     return Response(serializer.data)
 
 
@@ -19,10 +21,18 @@ def list_parcels(request):
 def add_parcel(request):
     many = isinstance(request.data, list)
     serializer = ParcelCreateSerializer(data=request.data, many=many, context={'request': request})
+    
     if serializer.is_valid():
-        # Pass sender only here, NOT in serializer.create()
-        serializer.save(sender=request.user)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        parcels = serializer.save(sender=request.user)  # create the parcel(s)
+
+        # Re-serialize using ParcelSerializer to include computed fields
+        if many:
+            response_serializer = ParcelSerializer(parcels, many=True, context={'request': request})
+        else:
+            response_serializer = ParcelSerializer(parcels, context={'request': request})
+
+        return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -34,7 +44,7 @@ def view_parcel(request, pk):
     except Parcel.DoesNotExist:
         return Response({'error': 'Parcel not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    serializer = ParcelSerializer(parcel)
+    serializer = ParcelSerializer(parcel, context={'request': request})
     return Response(serializer.data)
 
 
@@ -46,7 +56,7 @@ def update_parcel(request, pk):
     except Parcel.DoesNotExist:
         return Response({'error': 'Parcel not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    serializer = ParcelSerializer(parcel, data=request.data, partial=True)
+    serializer = ParcelSerializer(parcel, data=request.data, partial=True, context={'request': request})
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data)
